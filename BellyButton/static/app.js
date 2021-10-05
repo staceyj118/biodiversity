@@ -30,12 +30,7 @@ var layout = {
     yaxis: {
         tickmode: 'linear'
     }, 
-    // margin: {
-    //     l: 500,
-    //     r: 500,
-    //     t: 500,
-    //     b: 30
-    // }
+
 }; 
 
 Plotly.newPlot('bar', data, layout);
@@ -43,11 +38,42 @@ Plotly.newPlot('bar', data, layout);
 // bubble chart displaying sample - otu_id (x value), sample_values (y value), sample_values (marker size)
 // otu_ids (marker color), otu_lables (text values)
 
+var trace1 = {
+    x: otu_id,
+    y: sample_value, 
+    mode: 'markers',
+    marker: {
+        size: sample_value,
+        color: otu_id
+    },
+    text: otu_labels,
+    // type: 'bubble'
+}
 
-// sample metadata
+var data1 = [trace1];
 
+var layout1 = {
+    xaxis: {title: 'OTU ID'}, 
+    height: 500, 
+    width: 1000
+}; 
 
-//key-value pair from metadata in demographic info box
+Plotly.newPlot('bubble', data1, layout1);
+}); 
 
+// sample metadata - ID, ethnicity, gender, age, location, bbtype, wfreq
+function results(id) {
+    d3.json('samples.json').then(data =>{
+    var metadata = data.metadata;
+    // console.log(metadata);
 
-})
+    var all = metadata.filter(meta => meta.id.toString() === id)[0];
+    var demoInfo = d3.select('#sample-metadata');
+
+    demoInfo.html(''); 
+
+    Object.entries(all).forEach((key) => {
+        demoInfo.append('h5').text(key[0].toUpperCase() + ': ' + key[1] + '\n');
+});
+}); 
+}
