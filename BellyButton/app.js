@@ -1,16 +1,19 @@
 // d3 to fetch & read json file
-d3.json('samples.json').then(data =>{
-// console.log(data)
-
+function plotted (sample){
+    d3.json('samples.json').then(data =>{
+console.log(data)
+var samples = data.samples;
+var filterresult = samples.filter(item => item.id==sample);
+var result = filterresult[0]; 
 //horizontal barchart w dropdown menu - sample_values, otu_ids, otu_labels
-var otu_id = data.samples[0].otu_ids; 
-var sample_value = data.samples[0].sample_values.slice(0,10).reverse();
-var otu_labels = data.samples[0].otu_labels.slice(0,10);
+var otu_id = result.otu_ids; 
+var sample_value = result.sample_values.slice(0,10).reverse();
+var otu_labels = result.otu_labels.slice(0,10);
 
 //plot top 10, reverse order 
-var top_otu = (data.samples[0].otu_ids.slice(0,10).reverse());
+var top_otu = (result.otu_ids.slice(0,10).reverse());
 var top_otu_id = top_otu.map(d => 'OTU ' +d);
-var top_label = data.samples[0].otu_labels.slice(0,10);
+var top_label = result.otu_labels.slice(0,10);
 
 var trace = {
     x: sample_value, 
@@ -60,14 +63,14 @@ var layout1 = {
 
 Plotly.newPlot('bubble', data1, layout1);
 }); 
-
+}
 // sample metadata - ID, ethnicity, gender, age, location, bbtype, wfreq
-function results(id) {
+function results(sample) {
     d3.json('samples.json').then(data =>{
     var metadata = data.metadata;
     // console.log(metadata);
 
-    var all = metadata.filter(meta => meta.id.toString() === id)[0];
+    var all = metadata.filter(meta => meta.id == sample)[0];
     var demoInfo = d3.select('#sample-metadata');
 
     demoInfo.html(''); 
@@ -75,5 +78,23 @@ function results(id) {
     Object.entries(all).forEach((key) => {
         demoInfo.append('h5').text(key[0].toUpperCase() + ': ' + key[1] + '\n');
 });
-}); 
+}) 
 }
+
+function optionChanged(sample1) {
+    plotted(sample1);
+    results(sample1);
+}; 
+
+function infobox () {
+    var dropdown = d3.select ('#selDataset'); 
+    d3.json('samples.json').then((data) => {
+        data.names.forEach(function(name) {
+            dropdown.append('option').text(name).property('value',name); 
+        }); 
+        plotted(data.names[0]);
+        results(data.names[0]);
+    });
+}
+
+infobox();
